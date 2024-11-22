@@ -1,21 +1,21 @@
 {
-    "name": "sit725-2021-t2-prac",
+    "name": "sit725-2024-t4-prac",
     "version": "1.0.0",
-    "description": "sit 725 T2 week 2 prac",
+    "description": "This is the practical for task 2.2P, Rest Api and Express",
     "main": "server.js",
     "scripts": {
         "start": "node server_get.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ChoudharyNavit22/sit725-2021-t2-prac2.git"
+        "url": "git+https://github.com/marlon-deakin/SIT725.git"
     },
     "author": "Navit Choudhary",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/ChoudharyNavit22/sit725-2021-t2-prac2/issues"
+        "url": "https://github.com/marlon-deakin/SIT725/issues"
     },
-    "homepage": "https://github.com/ChoudharyNavit22/sit725-2021-t2-prac2#readme",
+    "homepage": "https://github.com/marlon-deakin/SIT725#readme",
     "dependencies": {
         "express": "^4.18.3"
     }
