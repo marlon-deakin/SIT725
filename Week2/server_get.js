@@ -18,5 +18,5 @@
     console.log (addTwoNumber(19,12));
     const port=3040;
     app.listen(port,()=> {
-        console.log("hello world, i'm listening on port: " + port + "and happy about it. Let's be friends");
+        console.log("hello world, i'm listening on port: " + port + " and happy about it. Let's be friends");
     })
