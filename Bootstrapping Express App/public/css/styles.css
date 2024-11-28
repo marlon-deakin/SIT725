@@ -7,3 +7,12 @@ body {
 .center-align {
     text-align: center;
 }
+
+.navbar-size {
+    width: 95%;
+    margin: 0 auto;
+}
+
+.user-image-size {
+    height: 64px;
+}

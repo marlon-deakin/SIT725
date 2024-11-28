@@ -1,61 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materialize in Express</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-     crossorigin="anonymous"></script>
-    <!-- Then Materialize JS -->
-    <script src="/materialize/js/materialize.min.js"></script>
-     <link href="/materialize/css/materialize.min.css" rel="stylesheet">
-     <link href="/style.css" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bootstrapping Express App</title>
+<meta name="description" content="basic template for SIT 725 Prac 3">
+<meta name="author" content="SitePoint">
+<meta property="og:title" content="SIT 725 Prac 3">
+<meta property="og:type" content="website">
+<meta property="og:description" content="basic template for SIT 725 Prac 3">
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet"
+ref="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<!-- Custom Style Sheet-->
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1 class="center-align">Welcome to Materialize with Express!</h1>
-    <h3 class="center-align"> It is not a crime to use Materialize </h3>
-
-    <!-- Materialize Button that triggers an action -->
-    <div class="center-align">
-        <a class="waves-effect waves-light btn" id="changeTextButton">Click me to change text</a>
-    </div>
-
-    <!-- Paragraph to change when button is clicked -->
-    <div class="center-align">
-        <p id="textContent">This is the original text.</p>
-    </div>  
-
-  <!-- Modal Structure -->
-  <div id="modal1" class="modal">
-    <div class="modal-content">
-      <h4>Modal Header</h4>
-      <p>A bunch of text</p>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-  </div>
-
-    <!-- Modal Trigger -->
-  <button data-target="modal1" class="btn modal-trigger">Modal</button>    
-
-   <script>
-        // JavaScript function to change the text when the button is clicked
-        document.addEventListener('DOMContentLoaded', function() {
-            const button = document.getElementById('changeTextButton');
-            const textContent = document.getElementById('textContent');
-
-            // Event listener for the button click
-            button.addEventListener('click', function() {
-                textContent.innerHTML = 'The text has been changed!';
-            });
-        });        
-        // Or with jQuery
-
-      $(document).ready(function(){
-        $('.modal').modal();
-     });
-
-    </script>
+<nav>
+<div class="nav-wrapper navbar-size">
+<a href="#" class="brand-logo"> <img class="user-image-size" src="images/user.jpg" /></a>
+<ul id="nav-mobile" class="right hide-on-med-and-down">
+</ul>
+</div>
+</nav>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="js/scripts.js"></script>
 </body>
 </html>
