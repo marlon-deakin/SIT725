@@ -1,4 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     M.AutoInit();
-  });
-  
+});
+
+const clickMe = () => {
+    alert("Thanks for clicking me. Hope you have a nice day!")
+}
+
+$(document).ready(function () {
+    $('.materialboxed').materialbox();
+    $('#clickMeButton').click(() => {
+        clickMe();
+    })
+});
