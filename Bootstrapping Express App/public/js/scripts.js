@@ -12,13 +12,7 @@ $(document).ready(function () {
 });
 
 
-const cardList = [
-    {
-        title: "Kitten 1",
-        image: "images/kitten.jpg",
-        link: "About Kitten 1",
-        desciption: "Demo desciption about kitten 1"
-    },
+const cardList = [    
     {
         title: "Kitten 2",
         image: "images/kitten-2.jpg",
