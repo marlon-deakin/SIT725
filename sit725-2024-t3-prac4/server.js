@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose'); // Import mongoose
 const initializeMongoServer = require('./config/config');
 
 const app = express();
