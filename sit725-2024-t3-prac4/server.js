@@ -2,26 +2,34 @@ const express = require('express');
 const initializeMongoServer = require('./config/config');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Middleware to parse JSON
 app.use(express.json());
 
-// Initialize MongoDB Memory Server
-initializeMongoServer().then(() => {
-  console.log('MongoDB Memory Server Initialized');
+// Sample endpoint for testing
+app.get('/api/requests', async (req, res) => {
+  try {
+    const db = mongoose.connection.db; // Access the MongoDB instance
+    const requests = await db.collection('requests').find({}).toArray();
+    res.json(requests);
+  } catch (error) {
+    console.error('Error fetching requests:', error);
+    res.status(500).send('Error fetching requests');
+  }
 });
 
-// Basic Route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Task Management App!');
-});
+const startServer = async () => {
+  try {
+    await initializeMongoServer(); // Ensure MongoDB server is initialized
+    console.log('MongoDB Memory Server Initialized');
+    
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('Error initializing MongoDB:', err);
+    process.exit(1);
+  }
+};
 
-const taskRoutes = require('./routes/taskRoutes');
-app.use('/api', taskRoutes);
-
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+startServer(); // Start the server
