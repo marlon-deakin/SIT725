@@ -1,61 +1,59 @@
-const { createTask, getAllTasks } = require("../controllers/taskController");
-const mongoose = require("mongoose");
+const taskController = require("../controllers/taskController");
+const TaskModel = require("../models/TaskModel");
 
-// Mocking Mongoose
-jest.mock("mongoose", () => {
-  const saveMock = jest.fn();
-  const findMock = jest.fn();
-
-  // Mocked Model
-  const mockModel = function () {
-    return { save: saveMock }; // Instance-level `save` method
-  };
-  mockModel.find = findMock; // Static-level `find` method
-
-  return {
-    model: jest.fn(() => mockModel),
-    Schema: jest.fn(),
-    __saveMock: saveMock, // Explicitly expose mocks for testing
-    __findMock: findMock,
-  };
-});
+jest.mock("../models/TaskModel");
 
 describe("Task Controller Tests", () => {
-  const mockTaskData = { title: "Test Task", description: "Test Desc", status: "Pending" };
+  let req, res;
 
-  let saveMock, findMock;
-
-  beforeAll(() => {
-    // Access Mongoose mocks
-    saveMock = mongoose.__saveMock;
-    findMock = mongoose.__findMock;
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks(); // Clear mocks after each test
+  beforeEach(() => {
+    req = {
+      body: {
+        title: "Test Task",
+        description: "Test Description",
+        status: "Pending",
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
   });
 
   test("createTask should create and save a task", async () => {
-    saveMock.mockResolvedValue(mockTaskData); // Mock save resolution
+    TaskModel.createTask.mockResolvedValue(req.body);
 
-    const result = await createTask({ body: mockTaskData }); // Call controller
+    await taskController.createTask(req, res);
 
-    // Assertions
-    expect(saveMock).toHaveBeenCalled();
-    expect(result).toEqual(mockTaskData);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(req.body);
+  });
+
+  test("createTask should handle errors", async () => {
+    TaskModel.createTask.mockRejectedValue(new Error("Error creating task"));
+
+    await taskController.createTask(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Error creating task" });
   });
 
   test("getAllTasks should retrieve all tasks", async () => {
-    const mockTasks = [
-      { title: "Task 1", description: "Desc 1", status: "Done" },
-      { title: "Task 2", description: "Desc 2", status: "Pending" },
-    ];
-    findMock.mockResolvedValue(mockTasks); // Mock find resolution
+    const tasks = [req.body];
+    TaskModel.getAllTasks.mockResolvedValue(tasks);
 
-    const result = await getAllTasks(); // Call controller
+    await taskController.getAllTasks(req, res);
 
-    // Assertions
-    expect(findMock).toHaveBeenCalledWith({});
-    expect(result).toEqual(mockTasks);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(tasks);
+  });
+
+  test("getAllTasks should handle errors", async () => {
+    TaskModel.getAllTasks.mockRejectedValue(new Error("Error fetching tasks"));
+
+    await taskController.getAllTasks(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Error fetching tasks" });
   });
 });
