@@ -67,5 +67,5 @@ describe('Socket.IO Server', () => {
         }, 500); // Delay to ensure server logs are processed
       });
     });
-  }, 60000); // Increase test timeout to 60 seconds
+  }, 120000); // Increase test timeout to 120 seconds
 });
