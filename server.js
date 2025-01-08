@@ -31,3 +31,5 @@ initializeMongoServer()
     app.use(express.static('public'));
   })
   .catch((err) => console.error("Failed to start MongoDB:", err));
+
+module.exports = { app, server, io };
