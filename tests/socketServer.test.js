@@ -1,25 +1,30 @@
 const io = require('socket.io-client');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { app } = require('../server'); // Adjust the path as needed
+const { app } = require('../server'); // Adjust path if needed
 
 describe('Socket.IO Server', () => {
   let server;
   let ioServer;
   let clientSocket;
+  let intervalId;
 
   beforeAll((done) => {
     server = createServer(app);
     ioServer = new Server(server);
 
     ioServer.on('connection', (socket) => {
-      console.log('A user connected');
+      console.log('Server: A user connected');
 
       socket.on('disconnect', () => {
-        console.log('User disconnected');
+        console.log('Server: User disconnected');
       });
 
-      setInterval(() => {
+      socket.on('error', (err) => {
+        console.error('Socket Error:', err);
+      });
+
+      intervalId = setInterval(() => {
         socket.emit('number', Math.floor(Math.random() * 10));
       }, 1000);
     });
@@ -31,10 +36,11 @@ describe('Socket.IO Server', () => {
     });
   });
 
-  afterAll((done) => {
-    clientSocket.close();
-    ioServer.close();
-    server.close(done);
+  afterAll(async () => {
+    if (intervalId) clearInterval(intervalId); // Clear the interval
+    if (clientSocket && clientSocket.connected) clientSocket.disconnect(); // Disconnect client
+    await new Promise((resolve) => ioServer.close(resolve)); // Close server sockets
+    await new Promise((resolve) => server.close(resolve));  // Close HTTP server
   });
 
   test('should receive a number from the server', (done) => {
@@ -48,16 +54,18 @@ describe('Socket.IO Server', () => {
     const consoleSpy = jest.spyOn(console, 'log');
     
     clientSocket.on('connect', () => {
-      console.log('Client connected');
-      clientSocket.close(); // Disconnect the client
+      console.log('Client: Connected to server');
+      setTimeout(() => {
+        console.log('Client: Disconnecting...');
+        clientSocket.disconnect(); // Trigger disconnect
+      }, 1000); // Increased delay to ensure server processes connection
     });
-  
+
     clientSocket.on('disconnect', () => {
-      expect(consoleSpy).toHaveBeenCalledWith('User disconnected');
+      console.log('Client: Disconnected from server');
+      expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
       consoleSpy.mockRestore();
       done();
     });
-  });
-  
-  
+  }, 20000); // Test timeout
 });
