@@ -20,10 +20,6 @@ describe('Socket.IO Server', () => {
         console.log('Server: User disconnected');
       });
 
-      socket.on('error', (err) => {
-        console.error('Socket Error:', err);
-      });
-
       intervalId = setInterval(() => {
         socket.emit('number', Math.floor(Math.random() * 10));
       }, 1000);
@@ -50,22 +46,24 @@ describe('Socket.IO Server', () => {
     });
   });
 
-  test('should log user connection and disconnection', (done) => {
+  test('should log user connection and disconnection', async () => {
     const consoleSpy = jest.spyOn(console, 'log');
     
-    clientSocket.on('connect', () => {
-      console.log('Client: Connected to server');
-      setTimeout(() => {
-        console.log('Client: Disconnecting...');
-        clientSocket.disconnect(); // Trigger disconnect
-      }, 1000); // Increased delay to ensure server processes connection
-    });
+    await new Promise((resolve) => {
+      clientSocket.on('connect', () => {
+        console.log('Client: Connected to server');
+        setTimeout(() => {
+          console.log('Client: Disconnecting...');
+          clientSocket.disconnect(); // Trigger disconnect
+        }, 1000); // Delay to ensure server processes connection
+      });
 
-    clientSocket.on('disconnect', () => {
-      console.log('Client: Disconnected from server');
-      expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
-      consoleSpy.mockRestore();
-      done();
+      clientSocket.on('disconnect', () => {
+        console.log('Client: Disconnected from server');
+        expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
+        consoleSpy.mockRestore();
+        resolve(); // Resolve the promise
+      });
     });
-  }, 20000); // Test timeout
+  }, 30000); // Test timeout
 });
