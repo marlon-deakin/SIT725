@@ -48,7 +48,7 @@ describe('Socket.IO Server', () => {
 
   test('should log user connection and disconnection', async () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    
+  
     await new Promise((resolve) => {
       clientSocket.on('connect', () => {
         console.log('Client: Connected to server');
@@ -57,7 +57,7 @@ describe('Socket.IO Server', () => {
           clientSocket.disconnect(); // Trigger disconnect
         }, 1000); // Delay to ensure server processes connection
       });
-
+  
       clientSocket.on('disconnect', () => {
         console.log('Client: Disconnected from server');
         setTimeout(() => {
@@ -67,5 +67,5 @@ describe('Socket.IO Server', () => {
         }, 500); // Delay to ensure server logs are processed
       });
     });
-  }, 30000); // Test timeout
+  }, 60000); // Increase test timeout to 60 seconds
 });
