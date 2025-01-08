@@ -60,9 +60,11 @@ describe('Socket.IO Server', () => {
 
       clientSocket.on('disconnect', () => {
         console.log('Client: Disconnected from server');
-        expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
-        consoleSpy.mockRestore();
-        resolve(); // Resolve the promise
+        setTimeout(() => {
+          expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
+          consoleSpy.mockRestore();
+          resolve(); // Resolve the promise
+        }, 500); // Delay to ensure server logs are processed
       });
     });
   }, 30000); // Test timeout
