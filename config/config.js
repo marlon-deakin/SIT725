@@ -35,9 +35,7 @@ const initializeMongoServer = async () => {
   const mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
 
-  mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  mongoose.connect(mongoUri, {    
   });
 
   mongoose.connection.on("connected", async () => {
