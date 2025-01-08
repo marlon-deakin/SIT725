@@ -2,9 +2,12 @@ const express = require("express");
 const taskRoutes = require("./routes/taskRoutes");
 const initializeMongoServer = require("./config/config");
 const http = require('http');
-const io = require('socket.io')(http);
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
 const PORT = 3000;
 
 app.use(express.json());
@@ -24,6 +27,7 @@ io.on('connection', (socket) => {
 
 initializeMongoServer()
   .then(() => {
-    app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+    server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+    app.use(express.static('public'));
   })
   .catch((err) => console.error("Failed to start MongoDB:", err));
