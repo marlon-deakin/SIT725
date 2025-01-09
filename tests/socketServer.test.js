@@ -32,11 +32,12 @@ describe('Socket.IO Server', () => {
     });
   });
 
-  afterAll(async () => {
+  afterAll((done) => {
     if (intervalId) clearInterval(intervalId); // Clear the interval
     if (clientSocket && clientSocket.connected) clientSocket.disconnect(); // Disconnect client
-    await new Promise((resolve) => ioServer.close(resolve)); // Close server sockets
-    await new Promise((resolve) => server.close(resolve));  // Close HTTP server
+    ioServer.close(() => {
+      server.close(done); // Close HTTP server and resolve done
+    });
   });
 
   test('should receive a number from the server', (done) => {
@@ -46,26 +47,24 @@ describe('Socket.IO Server', () => {
     });
   });
 
-  test('should log user connection and disconnection', async () => {
+  test('should log user connection and disconnection', (done) => {
     const consoleSpy = jest.spyOn(console, 'log');
-  
-    await new Promise((resolve) => {
-      clientSocket.on('connect', () => {
-        console.log('Client: Connected to server');
-        setTimeout(() => {
-          console.log('Client: Disconnecting...');
-          clientSocket.disconnect(); // Trigger disconnect
-        }, 1000); // Delay to ensure server processes connection
-      });
-  
-      clientSocket.on('disconnect', () => {
-        console.log('Client: Disconnected from server');
-        setTimeout(() => {
-          expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
-          consoleSpy.mockRestore();
-          resolve(); // Resolve the promise
-        }, 500); // Delay to ensure server logs are processed
-      });
+    
+    clientSocket.on('connect', () => {
+      console.log('Client: Connected to server');
+      setTimeout(() => {
+        console.log('Client: Disconnecting...');
+        clientSocket.disconnect(); // Trigger disconnect
+      }, 1000); // Delay to ensure server processes connection
+    });
+
+    clientSocket.on('disconnect', () => {
+      console.log('Client: Disconnected from server');
+      setTimeout(() => {
+        expect(consoleSpy).toHaveBeenCalledWith('Server: User disconnected');
+        consoleSpy.mockRestore();
+        done(); // Resolve the promise
+      }, 500); // Delay to ensure server logs are processed
     });
   }, 120000); // Increase test timeout to 120 seconds
 });
