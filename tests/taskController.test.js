@@ -2,12 +2,16 @@ const { createTask, getAllTasks } = require('../controllers/taskController');
 const TaskModel = require('../models/TaskModel');
 
 // Mock the TaskModel
-jest.mock('../models/TaskModel', () => ({
-    prototype: {
-        save: jest.fn(),
-    },
-    find: jest.fn(),
-}));
+jest.mock('../models/TaskModel', () => {
+    const originalModule = jest.requireActual('../models/TaskModel');
+    return {
+        ...originalModule,
+        Task: function (taskData) {
+            this.save = jest.fn().mockResolvedValue(taskData);
+        },
+        find: jest.fn(),
+    };
+});
 
 describe('Task Controller Tests', () => {
     afterEach(() => {
@@ -23,7 +27,7 @@ describe('Task Controller Tests', () => {
             status: 'open',
         });
 
-        TaskModel.prototype.save = mockSave;
+        TaskModel.Task.prototype.save = mockSave;
 
         const req = {
             body: {
@@ -90,7 +94,7 @@ describe('Task Controller Tests', () => {
             },
         });
 
-        TaskModel.prototype.save = mockSave;
+        TaskModel.Task.prototype.save = mockSave;
 
         const req = { body: {} };
         const res = {
@@ -136,7 +140,7 @@ describe('Task Controller Tests', () => {
             },
         });
 
-        TaskModel.prototype.save = mockSave;
+        TaskModel.Task.prototype.save = mockSave;
 
         const req = {
             body: {
