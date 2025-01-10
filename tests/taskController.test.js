@@ -86,12 +86,14 @@ describe('Task Controller Tests', () => {
     });
 
     test('should fail when required fields are missing', async () => {
-        const mockSave = jest.fn().mockRejectedValue({
-            name: 'ValidationError',
-            errors: {
+        const mockSave = jest.fn().mockImplementation(() => {
+            const error = new Error('ValidationError');
+            error.name = 'ValidationError';
+            error.errors = {
                 postedBy: { message: 'PostedBy is required' },
                 description: { message: 'Description is required' },
-            },
+            };
+            return Promise.reject(error);
         });
 
         TaskModel.Task.prototype.save = mockSave;
@@ -133,11 +135,13 @@ describe('Task Controller Tests', () => {
     });
 
     test('should handle invalid data type for hours', async () => {
-        const mockSave = jest.fn().mockRejectedValue({
-            name: 'ValidationError',
-            errors: {
+        const mockSave = jest.fn().mockImplementation(() => {
+            const error = new Error('ValidationError');
+            error.name = 'ValidationError';
+            error.errors = {
                 hours: { message: 'Invalid data type for hours' },
-            },
+            };
+            return Promise.reject(error);
         });
 
         TaskModel.Task.prototype.save = mockSave;
