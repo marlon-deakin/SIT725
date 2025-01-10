@@ -1,59 +1,163 @@
-const taskController = require("../controllers/taskController");
-const TaskModel = require("../models/TaskModel");
+const { createTask, getAllTasks } = require('../controllers/taskController');
+const TaskModel = require('../models/TaskModel');
 
-jest.mock("../models/TaskModel");
+// Mock the TaskModel
+jest.mock('../models/TaskModel', () => ({
+    prototype: {
+        save: jest.fn(),
+    },
+    find: jest.fn(),
+}));
 
-describe("Task Controller Tests", () => {
-  let req, res;
+describe('Task Controller Tests', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
-  beforeEach(() => {
-    req = {
-      body: {
-        title: "Test Task",
-        description: "Test Description",
-        status: "Pending",
-      },
-    };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-  });
+    test('should create a task successfully', async () => {
+        const mockSave = jest.fn().mockResolvedValue({
+            _id: 'mockedTaskId',
+            postedBy: 'user123',
+            description: 'Complete SIT725 task',
+            hours: 3,
+            status: 'open',
+        });
 
-  test("createTask should create and save a task", async () => {
-    TaskModel.createTask.mockResolvedValue(req.body);
+        TaskModel.prototype.save = mockSave;
 
-    await taskController.createTask(req, res);
+        const req = {
+            body: {
+                postedBy: 'user123',
+                description: 'Complete SIT725 task',
+                hours: 3,
+                status: 'open',
+            },
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        };
 
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith(req.body);
-  });
+        await createTask(req, res);
 
-  test("createTask should handle errors", async () => {
-    TaskModel.createTask.mockRejectedValue(new Error("Error creating task"));
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            description: 'Complete SIT725 task',
+        }));
+    });
 
-    await taskController.createTask(req, res);
+    test('should retrieve all tasks successfully', async () => {
+        const mockFind = jest.fn().mockResolvedValue([
+            {
+                _id: 'mockedTaskId1',
+                postedBy: 'user123',
+                description: 'Task 1',
+                hours: 5,
+                status: 'open',
+            },
+            {
+                _id: 'mockedTaskId2',
+                postedBy: 'user456',
+                description: 'Task 2',
+                hours: 2,
+                status: 'closed',
+            },
+        ]);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: "Error creating task" });
-  });
+        TaskModel.find = mockFind;
 
-  test("getAllTasks should retrieve all tasks", async () => {
-    const tasks = [req.body];
-    TaskModel.getAllTasks.mockResolvedValue(tasks);
+        const req = {};
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        };
 
-    await taskController.getAllTasks(req, res);
+        await getAllTasks(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(tasks);
-  });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith([
+            expect.objectContaining({ description: 'Task 1' }),
+            expect.objectContaining({ description: 'Task 2' }),
+        ]);
+    });
 
-  test("getAllTasks should handle errors", async () => {
-    TaskModel.getAllTasks.mockRejectedValue(new Error("Error fetching tasks"));
+    test('should fail when required fields are missing', async () => {
+        const mockSave = jest.fn().mockRejectedValue({
+            name: 'ValidationError',
+            errors: {
+                postedBy: { message: 'PostedBy is required' },
+                description: { message: 'Description is required' },
+            },
+        });
 
-    await taskController.getAllTasks(req, res);
+        TaskModel.prototype.save = mockSave;
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: "Error fetching tasks" });
-  });
+        const req = { body: {} };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        };
+
+        await createTask(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            errors: expect.objectContaining({
+                postedBy: expect.any(Object),
+                description: expect.any(Object),
+            }),
+        }));
+    });
+
+    test('should handle database connection failure', async () => {
+        const mockFind = jest.fn().mockRejectedValue(new Error('Database connection error'));
+
+        TaskModel.find = mockFind;
+
+        const req = {};
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        };
+
+        await getAllTasks(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Database connection error',
+        });
+    });
+
+    test('should handle invalid data type for hours', async () => {
+        const mockSave = jest.fn().mockRejectedValue({
+            name: 'ValidationError',
+            errors: {
+                hours: { message: 'Invalid data type for hours' },
+            },
+        });
+
+        TaskModel.prototype.save = mockSave;
+
+        const req = {
+            body: {
+                postedBy: 'user123',
+                description: 'Invalid hours test',
+                hours: 'three', // Invalid data type
+                status: 'open',
+            },
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        };
+
+        await createTask(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            errors: expect.objectContaining({
+                hours: expect.any(Object),
+            }),
+        }));
+    });
 });
